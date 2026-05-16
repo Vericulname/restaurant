@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import com.sangng.restaurant.dto.UserDto;
 import com.sangng.restaurant.model.User;
@@ -28,11 +29,16 @@ public class UserController {
     private final IUserService userService;
 
     @GetMapping("/getall")
-    public ResponseEntity<ApiRespone> getAllUsers() {
-        List<User> users = userService.getAllUsers();
+    public ResponseEntity<ApiRespone> getAllUsers(
+            @RequestParam(defaultValue = "id") String sortBy,
+            @RequestParam(defaultValue = "asc") String sortDir
+    ) {
+        List<User> users = userService.getAllUsers(sortBy, sortDir);
         List<UserDto> userDtos = userService.convertListToDtos(users);
         return ResponseEntity.ok(new ApiRespone("Users retrieved successfully", userDtos));
     }
+
+ 
 
     @GetMapping("/getbyid/{id}")
     public ResponseEntity<ApiRespone> getUsersById(@PathVariable("id") Long id) {

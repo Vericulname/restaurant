@@ -2,7 +2,6 @@ package com.sangng.restaurant.controller;
 
 import java.util.List;
 
-import org.apache.catalina.connector.Response;
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 import org.springframework.http.ResponseEntity;
@@ -11,7 +10,10 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import com.sangng.restaurant.dto.BillDto;
 import com.sangng.restaurant.exception.ResourceNotFoundException;
@@ -20,9 +22,6 @@ import com.sangng.restaurant.respone.ApiRespone;
 import com.sangng.restaurant.service.Bill.IBillService;
 
 import lombok.RequiredArgsConstructor;
-
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 
 @Controller
 @RequestMapping("${api.prefix}/bills")
@@ -35,19 +34,20 @@ public class BillController {
     public ResponseEntity<ApiRespone> getBillById(@PathVariable("id") Long id) {
         try {
             Bill bill = billService.getBillById(id);
-            // BillDto billDto = billService.convertToDto(bill);
-            return ResponseEntity.ok(new ApiRespone("Bill retrieved successfully", bill));
+            BillDto billDto = billService.convertToDto(bill);
+            return ResponseEntity.ok(new ApiRespone("Bill retrieved successfully", billDto));
         } catch (ResourceNotFoundException e) {
             return ResponseEntity.status(NOT_FOUND).body(new ApiRespone(e.getMessage()));
         }
     }
     
     @GetMapping("/getbyuserid/{id}")
-    public ResponseEntity<ApiRespone> getBillByUserId(@PathVariable("id") Long id) {
+    public ResponseEntity<ApiRespone> getBillByUserId(@PathVariable("id") Long id,
+            @RequestParam(defaultValue = "id")String sortBy, @RequestParam(defaultValue = "asc") String sortDir) {
         try {
-            List<Bill> bills = billService.getBillsByUserId(id);
-            // BillDto billDto = billService.convertToDto(bill);
-            return ResponseEntity.ok(new ApiRespone("Bill retrieved successfully", bills));
+            List<Bill> bills = billService.getBillsByUserId(id, sortBy, sortDir);
+            List<BillDto> billDtos = billService.convertListToDtos(bills);
+            return ResponseEntity.ok(new ApiRespone("Bill retrieved successfully", billDtos));
         } catch (ResourceNotFoundException e) {
             return ResponseEntity.status(NOT_FOUND).body(new ApiRespone(e.getMessage()));
         }
@@ -64,7 +64,7 @@ public class BillController {
         }
     }
 
-    @PutMapping("ClearBillItem/{id}")
+    @PutMapping("/ClearBillItem/{id}")
     public ResponseEntity<ApiRespone> ClearBillitems(@PathVariable("id") Long billid) {
         try {
             billService.clearBillItems(billid);

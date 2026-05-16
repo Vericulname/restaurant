@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import com.sangng.restaurant.dto.UserDto;
@@ -29,9 +30,13 @@ public class UserService implements IUserService {
     }
 
     @Override
-    public List<User> getAllUsers() {
-        return userRepos.findAll();
+    public List<User> getAllUsers(String sortBy, String sortDir) {
+        Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name()) ? 
+         Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
+        
+        return userRepos.findAll(sort);
     }
+   
 
     @Override
     public User getUserById(Long id) {

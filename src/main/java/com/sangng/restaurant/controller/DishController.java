@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import com.sangng.restaurant.dto.DishDto;
 import com.sangng.restaurant.model.Dish;
@@ -31,8 +32,9 @@ public class DishController {
     private final IDishService dishService;
 
     @GetMapping("/getall")
-    public ResponseEntity<ApiRespone> getAllDishes() {
-        List<Dish> dishes = dishService.getAllDishes();
+    public ResponseEntity<ApiRespone> getAllDishes(@RequestParam(defaultValue = "id") String sortBy,
+            @RequestParam(defaultValue = "asc") String sortDir) {
+        List<Dish> dishes = dishService.getAllDishes(sortBy, sortDir);
         List<DishDto> dishDtos = dishService.convertListToDtos(dishes);
         return ResponseEntity.ok(new ApiRespone("Dishes retrieved successfully", dishDtos));
     }

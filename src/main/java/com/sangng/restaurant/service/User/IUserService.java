@@ -9,7 +9,8 @@ import com.sangng.restaurant.request.UserUpdateRequest;
 
 public interface IUserService {
     User getUserByName(String name);
-    List<User> getAllUsers();
+
+    List<User> getAllUsers(String sortBy,String sortDir);
 
     User getUserById(Long id);
     User updateUser(Long id, UserUpdateRequest request);

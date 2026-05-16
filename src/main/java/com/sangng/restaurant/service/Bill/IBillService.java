@@ -12,14 +12,14 @@ public interface IBillService {
 
     void clearBillItems(Long id);
 
-    List<Bill> getAllBills();
+    List<Bill> getAllBills(String sortBy, String sortDir);
 
     List<Bill> getBillsByTotalPrice(double totalPrice);
-    List<Bill> getBillsByUserId(Long userId);
+    List<Bill> getBillsByUserId(Long userId, String sortBy, String sortDir);
+  
+    BillDto convertToDto(Bill bill);
 
-    // BillDto convertToDto(Bill bill);
-
-    // List<BillDto> convertListToDtos(List<Bill> bills);
+    List<BillDto> convertListToDtos(List<Bill> bills);
     
 
 }

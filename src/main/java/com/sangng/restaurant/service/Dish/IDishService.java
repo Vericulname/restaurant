@@ -8,7 +8,7 @@ import com.sangng.restaurant.request.DishCreateRequest;
 import com.sangng.restaurant.request.DishUpdateRequest;
 
 public interface IDishService {
-    List<Dish> getAllDishes();
+    List<Dish> getAllDishes(String sortBy, String sortDir);
 
     Dish getDishById(Long id);
     List<Dish> getDishesByName(String name);
