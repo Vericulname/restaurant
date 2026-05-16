@@ -15,7 +15,6 @@ import com.sangng.restaurant.repository.DishRepos;
 import com.sangng.restaurant.repository.ImageRepos;
 import com.sangng.restaurant.request.DishCreateRequest;
 import com.sangng.restaurant.request.DishUpdateRequest;
-import com.sangng.restaurant.service.Image.ImageService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -37,7 +36,7 @@ public class DishService implements IDishService {
 
     @Override
     public List<Dish> getDishesByName(String name) {
-        return dishRepos.findByName(name);
+        return dishRepos.findByNameContaining(name);
     }
 
     @Override

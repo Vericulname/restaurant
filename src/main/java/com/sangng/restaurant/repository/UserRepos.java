@@ -8,7 +8,7 @@ import com.sangng.restaurant.model.User;
 @Repository
 public interface  UserRepos extends JpaRepository<User, Long> {
 
-    public User findByName(String name);
+    public User findByNameContaining(String name);
 
     public boolean existsByEmail(String email);
 

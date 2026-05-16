@@ -24,7 +24,7 @@ public class UserService implements IUserService {
 
     @Override
     public User getUserByName(String name) {
-        return Optional.ofNullable(userRepos.findByName(name))
+        return Optional.ofNullable(userRepos.findByNameContaining(name))
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with name: " + name));
     }
 

@@ -10,7 +10,7 @@ import com.sangng.restaurant.model.Dish;
 @Repository
 public interface DishRepos extends JpaRepository<Dish, Long> {
 
-    List<Dish> findByName(String name);
+    List<Dish> findByNameContaining(String name);
 
     List<Dish> findByPrice(double price);
 
