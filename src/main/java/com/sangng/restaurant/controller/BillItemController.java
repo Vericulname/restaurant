@@ -32,7 +32,7 @@ public class BillItemController {
 
     private final IBillItemService billItemService;
 
-    @PostMapping("/createBillItem/{billid}")
+    @PostMapping("/createForbillId/{billid}")
     public ResponseEntity<ApiRespone> createBillItem(@PathVariable("billid") Long billId,
             @RequestBody BillItemCreateRequest request) {
         try {
@@ -45,7 +45,7 @@ public class BillItemController {
 
     }
 
-    @PutMapping("/updateBillItem/{id}")
+    @PutMapping("/update/{id}")
     public ResponseEntity<ApiRespone> updateBillItem(@PathVariable("id") Long id,
             @RequestBody BillItemUpdateRequest request) {
         try {
@@ -58,7 +58,7 @@ public class BillItemController {
 
     }
 
-    @DeleteMapping("/deleteBillItem/{id}")
+    @DeleteMapping("/delete/{id}")
     public ResponseEntity<ApiRespone> deleteBillItem(@PathVariable("id") Long id) {
         try {
             billItemService.deleteBillItem(id);
