@@ -2,8 +2,8 @@ package com.sangng.restaurant.controller;
 
 import java.util.List;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.sangng.restaurant.dto.UserDto;
 import com.sangng.restaurant.model.User;
@@ -22,74 +23,52 @@ import com.sangng.restaurant.service.User.IUserService;
 
 import lombok.RequiredArgsConstructor;
 
-@Controller
+@RestController
 @RequestMapping("${api.prefix}/users")
 @RequiredArgsConstructor
 public class UserController {
+
     private final IUserService userService;
 
-    @GetMapping("/getall")
-    public ResponseEntity<ApiRespone> getAllUsers(
-            @RequestParam(defaultValue = "id") String sortBy,
-            @RequestParam(defaultValue = "asc") String sortDir
+    @GetMapping
+    public ResponseEntity<ApiRespone> getUsers(
+            @RequestParam(required = false) String name,
+            @RequestParam(defaultValue = "id", required = false) String sortBy,
+            @RequestParam(defaultValue = "asc", required = false) String sortDir
     ) {
+        if (name != null && !name.isEmpty()) {
+            User user = userService.getUserByName(name);
+            return ResponseEntity.ok(new ApiRespone("User retrieved successfully", userService.convertToDto(user)));
+        }
         List<User> users = userService.getAllUsers(sortBy, sortDir);
         List<UserDto> userDtos = userService.convertListToDtos(users);
-        return ResponseEntity.ok(new ApiRespone("Users retrieved successfully", userDtos));
+        return ResponseEntity.status(HttpStatus.OK).body(new ApiRespone("Users retrieved successfully", userDtos));
     }
 
- 
-
-    @GetMapping("/getbyid/{id}")
+    @GetMapping("/{id}")
     public ResponseEntity<ApiRespone> getUsersById(@PathVariable("id") Long id) {
-        try {
-            User user = userService.getUserById(id);
-            UserDto userDto = userService.convertToDto(user);
-            return ResponseEntity.ok(new ApiRespone("User retrieved successfully", userDto));
-        } catch (Exception e) {
-            return ResponseEntity.status(404).body(new ApiRespone(e.getMessage(), null));
-        }
+        User user = userService.getUserById(id);
+        UserDto userDto = userService.convertToDto(user);
+        return ResponseEntity.status(HttpStatus.OK).body(new ApiRespone("User retrieved successfully", userDto));
     }
 
-    @GetMapping("/getbyname/{name}")
-    public ResponseEntity<ApiRespone> getUsersByName(@PathVariable("name") String name) {
-        try {
-            User user = userService.getUserByName(name);
-            UserDto userDto = userService.convertToDto(user);
-            return ResponseEntity.ok(new ApiRespone("User retrieved successfully", userDto));
-        } catch (Exception e) {
-            return ResponseEntity.status(404).body(new ApiRespone(e.getMessage(), null));
-        }
-     
-    }
-
-    @PostMapping("/create")
+    @PostMapping
     public ResponseEntity<ApiRespone> createUser(@RequestBody UserCreateRequest request) {
-
         User createdUser = userService.createUser(request);
         UserDto createdUserDto = userService.convertToDto(createdUser);
-        return ResponseEntity.ok(new ApiRespone("User created successfully", createdUserDto));
-    }
-    @PutMapping("/update/{id}")
-    public ResponseEntity<ApiRespone> updateUser(@PathVariable("id") Long id, @RequestBody UserUpdateRequest request) {
-        try {
-            User updatedUser = userService.updateUser(id, request);
-            UserDto updatedUserDto = userService.convertToDto(updatedUser);
-            return ResponseEntity.ok(new ApiRespone("User updated successfully", updatedUserDto));
-        } 
-        catch (Exception e) {
-            return ResponseEntity.status(404).body(new ApiRespone(e.getMessage(), null));
-        }
+        return ResponseEntity.status(HttpStatus.CREATED).body(new ApiRespone("User created successfully", createdUserDto));
     }
 
-    @DeleteMapping("/delete/{id}")
+    @PutMapping("/{id}")
+    public ResponseEntity<ApiRespone> updateUser(@PathVariable("id") Long id, @RequestBody UserUpdateRequest request) {
+        User updatedUser = userService.updateUser(id, request);
+        UserDto updatedUserDto = userService.convertToDto(updatedUser);
+        return ResponseEntity.ok(new ApiRespone("User updated successfully", updatedUserDto));
+    }
+
+    @DeleteMapping("/{id}")
     public ResponseEntity<ApiRespone> deleteUser(@PathVariable("id") Long id) {
-        try {
-            userService.deleteUser(id);
-            return ResponseEntity.ok(new ApiRespone("User deleted successfully", null));
-        } catch (Exception e) {
-            return ResponseEntity.status(404).body(new ApiRespone(e.getMessage(), null));
-        }
-        
+        userService.deleteUser(id);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(new ApiRespone("User deleted successfully"));
     }
 }

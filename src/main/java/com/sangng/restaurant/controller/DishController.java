@@ -2,10 +2,8 @@ package com.sangng.restaurant.controller;
 
 import java.util.List;
 
-import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
-import static org.springframework.http.HttpStatus.NOT_FOUND;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -14,6 +12,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.sangng.restaurant.dto.DishDto;
 import com.sangng.restaurant.model.Dish;
@@ -24,90 +23,72 @@ import com.sangng.restaurant.service.Dish.IDishService;
 
 import lombok.RequiredArgsConstructor;
 
-
-@Controller
+@RestController
 @RequiredArgsConstructor
 @RequestMapping("${api.prefix}/dishes")
 public class DishController {
+
     private final IDishService dishService;
 
-    @GetMapping("/getall")
-    public ResponseEntity<ApiRespone> getAllDishes(@RequestParam(defaultValue = "id") String sortBy,
-            @RequestParam(defaultValue = "asc") String sortDir) {
-        List<Dish> dishes = dishService.getAllDishes(sortBy, sortDir);
+    @GetMapping
+    public ResponseEntity<ApiRespone> getDishes(
+            @RequestParam(required = false) String name,
+            @RequestParam(required = false) Double price,
+            @RequestParam(defaultValue = "id", required = false) String sortBy,
+            @RequestParam(defaultValue = "asc", required = false) String sortDir) {
+
+        List<Dish> dishes;
+        if (name != null) {
+            dishes = dishService.getDishesByName(name);
+        } else if (price != null) {
+            dishes = dishService.getDishesByPrice(price);
+        } else {
+            dishes = dishService.getAllDishes(sortBy, sortDir);
+        }
+
         List<DishDto> dishDtos = dishService.convertListToDtos(dishes);
         return ResponseEntity.ok(new ApiRespone("Dishes retrieved successfully", dishDtos));
     }
-    @GetMapping("/getbyid/{id}")
+
+    @GetMapping("/{id}")
     public ResponseEntity<ApiRespone> getDishById(@PathVariable("id") Long id) {
-        try{
-        Dish dish = dishService.getDishById(id);
-    DishDto dishDto = dishService.convertToDto(dish);
-        return ResponseEntity.ok(new ApiRespone("Dish retrieved successfully", dishDto));
-        }catch (Exception e){
-            return ResponseEntity.status(NOT_FOUND).body(new ApiRespone(e.getMessage(), null));
-        }
+  
+            Dish dish = dishService.getDishById(id);
+            DishDto dishDto = dishService.convertToDto(dish);
+            return ResponseEntity.ok(new ApiRespone("Dish retrieved successfully", dishDto));
+        
     }
-    @GetMapping("/getbyname/{name}")
-    public ResponseEntity<ApiRespone> getDishByName(@PathVariable("name") String name) {
-        try {
-            List<Dish> dishes = dishService.getDishesByName(name);
-            List<DishDto> dishDtos = dishService.convertListToDtos(dishes);
-            return ResponseEntity.ok(new ApiRespone("Dishes retrieved successfully", dishDtos));
-        } catch (Exception e) {
-            return ResponseEntity.status(NOT_FOUND).body(new ApiRespone(e.getMessage(), null));
-        }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<ApiRespone> deleteDish(@PathVariable("id") Long id) {
+       
+            dishService.deleteDish(id);
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).
+            body(new ApiRespone("Dish deleted successfully"));
        
     }
-    
-    @GetMapping("/getbyprice/{price}")
-    public ResponseEntity<ApiRespone> getDishByPrice(@PathVariable("price") double price) {
-        try {
-            List<Dish> dishes = dishService.getDishesByPrice(price);
-            List<DishDto> dishDtos = dishService.convertListToDtos(dishes);
-            return ResponseEntity.ok(new ApiRespone("Dishes retrieved successfully", dishDtos));
-        } catch (Exception e) {
-            return ResponseEntity.status(NOT_FOUND).body(new ApiRespone(e.getMessage(), null));
-        }
 
-    }
-    
-    @DeleteMapping("/delete/{id}")
-    public ResponseEntity<ApiRespone> deleteDish(@PathVariable("id") Long id) {
-        try {
-            dishService.deleteDish(id);
-            return ResponseEntity.ok(new ApiRespone("Dish deleted successfully", null));
-        } catch (Exception e) {
-            return ResponseEntity.status(NOT_FOUND).body(new ApiRespone(e.getMessage(), null));
-        }
-    }
-
-    @PostMapping("/create")
+    @PostMapping
     public ResponseEntity<ApiRespone> createDish(@RequestBody DishCreateRequest request) {
-        try {
+   
             Dish dish = dishService.createDish(request);
             DishDto dishDto = dishService.convertToDto(dish);
 
-            return ResponseEntity.ok(new ApiRespone("Dish created successfully", dishDto));
-        } catch (Exception e) {
-            return ResponseEntity.status(INTERNAL_SERVER_ERROR).body(new ApiRespone(e.getMessage(), null));
-        }
+            return ResponseEntity.status(HttpStatus.CREATED).
+            body(new ApiRespone("Dish created successfully", dishDto));
         
 
     }
-    @PutMapping("/update/{id}")
+
+    @PutMapping("/{id}")
     public ResponseEntity<ApiRespone> updateDish(@PathVariable("id") Long id, @RequestBody DishUpdateRequest request) {
-        try {
+  
             Dish dish = dishService.updateDish(id, request);
             DishDto dishDto = dishService.convertToDto(dish);
 
             return ResponseEntity.ok(new ApiRespone("Dish updated successfully", dishDto));
-        } catch (Exception e) {
-            return ResponseEntity.status(INTERNAL_SERVER_ERROR).body(new ApiRespone(e.getMessage(), null));
-        }
         
 
     }
-    
 
 }
