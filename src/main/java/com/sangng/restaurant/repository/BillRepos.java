@@ -12,8 +12,6 @@ import com.sangng.restaurant.model.Bill;
 public interface BillRepos extends JpaRepository<Bill, Long> {
 
     List<Bill> findBytotalprice(double totalPrice);
-
-    List<Bill> findByBillItemsDishName(String dishName);
     
     List<Bill> findByUserId(Long userId,Sort sort);
     
