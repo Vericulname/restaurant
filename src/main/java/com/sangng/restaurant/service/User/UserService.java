@@ -5,6 +5,9 @@ import java.util.Optional;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.sangng.restaurant.dto.UserDto;
@@ -22,7 +25,7 @@ import lombok.RequiredArgsConstructor;
 public class UserService implements IUserService {
     private final UserRepos userRepos;
     private final ModelMapper modelMapper;
-
+    private final PasswordEncoder passwordEncoder;
     @Override
     public User getUserByName(String name) {
         return Optional.ofNullable(userRepos.findByNameContaining(name))
@@ -54,7 +57,7 @@ public class UserService implements IUserService {
                     User user = new User();
                     user.setName(u.getName());
                     user.setEmail(u.getEmail());
-                    user.setPassword(u.getPassword());
+                    user.setPassword(passwordEncoder.encode(u.getPassword()));
                     return userRepos.save(user);
                 })
                 .orElseThrow(() -> new AlreadyexistsException("User already exists with email: " + request.getEmail()));
@@ -66,7 +69,7 @@ public class UserService implements IUserService {
                 .map(user -> {
                     user.setName(request.getName());
                     user.setEmail(request.getEmail());
-                    user.setPassword(request.getPassword());
+                    user.setPassword(passwordEncoder.encode(request.getPassword()));
                     return userRepos.save(user);
                 })
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id));
@@ -89,6 +92,13 @@ public class UserService implements IUserService {
         return users.stream()
                 .map(this::convertToDto)
                 .toList();
+    }
+
+    @Override
+    public User getAuthedUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String email = authentication.getName();
+        return userRepos.findByEmail(email); 
     }
 
 }

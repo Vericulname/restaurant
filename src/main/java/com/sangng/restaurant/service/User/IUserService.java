@@ -19,5 +19,7 @@ public interface IUserService {
     User createUser(UserCreateRequest request);
     UserDto convertToDto(User user);
     List<UserDto> convertListToDtos(List<User> users);
+
+    User getAuthedUser();
     
 }
