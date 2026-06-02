@@ -4,9 +4,11 @@ import java.util.List;
 
 import com.sangng.restaurant.dto.BillDto;
 import com.sangng.restaurant.model.Bill;
+import com.sangng.restaurant.model.User;
 
 public interface IBillService {
-    Bill createBill(Long userid);
+
+    Bill createBill(User user);
     Bill getBillById(Long id);
     void deleteBill(Long id);
 

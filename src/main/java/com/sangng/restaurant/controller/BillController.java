@@ -15,8 +15,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.sangng.restaurant.dto.BillDto;
 import com.sangng.restaurant.model.Bill;
+import com.sangng.restaurant.model.User;
 import com.sangng.restaurant.respone.ApiRespone;
 import com.sangng.restaurant.service.Bill.IBillService;
+import com.sangng.restaurant.service.User.IUserService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -26,6 +28,7 @@ import lombok.RequiredArgsConstructor;
 public class BillController {
 
     private final IBillService billService;
+    private final IUserService userService;
 
     @GetMapping("/bills/{id}")
     public ResponseEntity<ApiRespone> getBillById(@PathVariable("id") Long id) {
@@ -34,22 +37,27 @@ public class BillController {
         return ResponseEntity.ok(new ApiRespone("Bill retrieved successfully", billDto));
     }
 
-    @GetMapping("/users/{id}/bills")
-    public ResponseEntity<ApiRespone> getBillByUserId(@PathVariable("id") Long id,
+    @GetMapping("/users/bills")
+    public ResponseEntity<ApiRespone> getBillByUserId(
             @RequestParam(defaultValue = "id", required = false) String sortBy,
             @RequestParam(defaultValue = "asc", required = false) String sortDir) {
+        Long id = userService.getAuthedUser().getId();
+
         List<Bill> bills = billService.getBillsByUserId(id, sortBy, sortDir);
         List<BillDto> billDtos = billService.convertListToDtos(bills);
         return ResponseEntity.ok(new ApiRespone("Bill retrieved successfully", billDtos));
     }
 
-    @PostMapping("/users/{userid}/bills")
-    public ResponseEntity<ApiRespone> createBill(@PathVariable("userid") Long userid) {
-        Bill bill = billService.createBill(userid);
+    @PostMapping("/users/bills")
+    public ResponseEntity<ApiRespone> createBill(
+            // @PathVariable("userid") Long userid
+    ) {
+        User user = userService.getAuthedUser();
+        Bill bill = billService.createBill(user);
         return ResponseEntity.status(HttpStatus.CREATED).body(new ApiRespone("Bill created successfully", bill));
     }
 
-    @PutMapping("/users/{userid}/bills/{id}")
+    @PutMapping("/users/bills/{id}")
     public ResponseEntity<ApiRespone> clearBillItems(@PathVariable("id") Long billid) {
         billService.clearBillItems(billid);
         return ResponseEntity.ok(new ApiRespone("Bill cleared successfully"));

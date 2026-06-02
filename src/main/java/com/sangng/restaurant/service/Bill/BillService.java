@@ -34,9 +34,9 @@ public class BillService implements IBillService {
 
     private final BillItemRepos billItemRepos;
     @Override
-    public Bill createBill(Long userid) {
+    public Bill createBill(User user) {
+
         Bill bill = new Bill();
-        User user = userRepos.findById(userid).orElseThrow(() -> new ResourceNotFoundException("User not found"));
         bill.setUser(user);
         return billrepos.save(bill);
     }
