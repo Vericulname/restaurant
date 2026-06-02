@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -30,6 +31,7 @@ public class DishController {
 
     private final IDishService dishService;
 
+   
     @GetMapping
     public ResponseEntity<ApiRespone> getDishes(
             @RequestParam(required = false) String name,
@@ -52,22 +54,23 @@ public class DishController {
 
     @GetMapping("/{id}")
     public ResponseEntity<ApiRespone> getDishById(@PathVariable("id") Long id) {
-  
-            Dish dish = dishService.getDishById(id);
-            DishDto dishDto = dishService.convertToDto(dish);
-            return ResponseEntity.ok(new ApiRespone("Dish retrieved successfully", dishDto));
-        
+
+        Dish dish = dishService.getDishById(id);
+        DishDto dishDto = dishService.convertToDto(dish);
+        return ResponseEntity.ok(new ApiRespone("Dish retrieved successfully", dishDto));
+
     }
 
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiRespone> deleteDish(@PathVariable("id") Long id) {
-       
-            dishService.deleteDish(id);
-            return ResponseEntity.status(HttpStatus.NO_CONTENT).
-            body(new ApiRespone("Dish deleted successfully"));
-       
+
+        dishService.deleteDish(id);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(new ApiRespone("Dish deleted successfully"));
+
     }
 
+       @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PostMapping
     public ResponseEntity<ApiRespone> createDish(@RequestBody DishCreateRequest request) {
    
@@ -79,7 +82,7 @@ public class DishController {
         
 
     }
-
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PutMapping("/{id}")
     public ResponseEntity<ApiRespone> updateDish(@PathVariable("id") Long id, @RequestBody DishUpdateRequest request) {
   
