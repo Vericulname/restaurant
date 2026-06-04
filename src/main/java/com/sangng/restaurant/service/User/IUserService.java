@@ -8,7 +8,7 @@ import com.sangng.restaurant.request.UserCreateRequest;
 import com.sangng.restaurant.request.UserUpdateRequest;
 
 public interface IUserService {
-    User getUserByName(String name);
+    List<User> getUserByName(String name);
 
     List<User> getAllUsers(String sortBy,String sortDir);
 
