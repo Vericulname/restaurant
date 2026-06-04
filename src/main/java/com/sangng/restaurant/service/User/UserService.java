@@ -1,5 +1,6 @@
 package com.sangng.restaurant.service.User;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -13,6 +14,8 @@ import org.springframework.stereotype.Service;
 import com.sangng.restaurant.dto.UserDto;
 import com.sangng.restaurant.exception.AlreadyexistsException;
 import com.sangng.restaurant.exception.ResourceNotFoundException;
+import com.sangng.restaurant.initiate.RoleRepos;
+import com.sangng.restaurant.model.Roles;
 import com.sangng.restaurant.model.User;
 import com.sangng.restaurant.repository.UserRepos;
 import com.sangng.restaurant.request.UserCreateRequest;
@@ -26,8 +29,10 @@ public class UserService implements IUserService {
     private final UserRepos userRepos;
     private final ModelMapper modelMapper;
     private final PasswordEncoder passwordEncoder;
+    private final RoleRepos roleRepos;
+
     @Override
-    public User getUserByName(String name) {
+    public List<User> getUserByName(String name) {
         return Optional.ofNullable(userRepos.findByNameContaining(name))
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with name: " + name));
     }
@@ -50,6 +55,11 @@ public class UserService implements IUserService {
 
     @Override
     public User createUser(UserCreateRequest request) {
+        Collection<Roles> roles = roleRepos.findAllById(request.getRoleIds());
+        if (roles.isEmpty()) {
+            roles.add(roleRepos.findByName("ROLE_USER")
+                    .orElseThrow(() -> new ResourceNotFoundException("Role not found")));
+        }
         
         return Optional.of(request)
                 .filter(u -> !userRepos.existsByEmail(u.getEmail()))
@@ -58,6 +68,7 @@ public class UserService implements IUserService {
                     user.setName(u.getName());
                     user.setEmail(u.getEmail());
                     user.setPassword(passwordEncoder.encode(u.getPassword()));
+                    user.setRoles(roles);
                     return userRepos.save(user);
                 })
                 .orElseThrow(() -> new AlreadyexistsException("User already exists with email: " + request.getEmail()));
