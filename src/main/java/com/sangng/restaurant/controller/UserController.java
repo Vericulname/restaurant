@@ -37,8 +37,8 @@ public class UserController {
             @RequestParam(defaultValue = "asc", required = false) String sortDir
     ) {
         if (name != null && !name.isEmpty()) {
-            User user = userService.getUserByName(name);
-            return ResponseEntity.ok(new ApiRespone("User retrieved successfully", userService.convertToDto(user)));
+            List<User> users = userService.getUserByName(name);
+            return ResponseEntity.ok(new ApiRespone("User retrieved successfully", userService.convertListToDtos(users)));
         }
         List<User> users = userService.getAllUsers(sortBy, sortDir);
         List<UserDto> userDtos = userService.convertListToDtos(users);
