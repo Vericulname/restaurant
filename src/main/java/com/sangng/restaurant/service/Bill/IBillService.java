@@ -2,6 +2,9 @@ package com.sangng.restaurant.service.Bill;
 
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
 import com.sangng.restaurant.dto.BillDto;
 import com.sangng.restaurant.model.Bill;
 import com.sangng.restaurant.model.User;
@@ -14,11 +17,11 @@ public interface IBillService {
 
     void clearBillItems(Long id);
 
-    List<Bill> getAllBills(String sortBy, String sortDir);
+    Page<Bill> getAllBills(Pageable pageable);
 
-    List<Bill> getBillsByTotalPrice(double totalPrice);
-    List<Bill> getBillsByUserId(Long userId, String sortBy, String sortDir);
-  
+    Page<Bill> getBillsByTotalPrice(double totalPrice, Pageable pageable);
+    Page<Bill> getBillsByUserId(Long userId, Pageable pageable);
+
     BillDto convertToDto(Bill bill);
 
     List<BillDto> convertListToDtos(List<Bill> bills);

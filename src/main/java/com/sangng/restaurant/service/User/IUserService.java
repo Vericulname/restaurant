@@ -2,15 +2,18 @@ package com.sangng.restaurant.service.User;
 
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
 import com.sangng.restaurant.dto.UserDto;
 import com.sangng.restaurant.model.User;
 import com.sangng.restaurant.request.UserCreateRequest;
 import com.sangng.restaurant.request.UserUpdateRequest;
 
 public interface IUserService {
-    List<User> getUserByName(String name);
+    Page<User> getUserByName(String name, Pageable pageable);
 
-    List<User> getAllUsers(String sortBy,String sortDir);
+    Page<User> getAllUsers(Pageable pageable);
 
     User getUserById(Long id);
     User updateUser(Long id, UserUpdateRequest request);

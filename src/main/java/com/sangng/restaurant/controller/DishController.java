@@ -1,7 +1,7 @@
 package com.sangng.restaurant.controller;
 
-import java.util.List;
-
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -36,19 +36,18 @@ public class DishController {
     public ResponseEntity<ApiRespone> getDishes(
             @RequestParam(required = false) String name,
             @RequestParam(required = false) Double price,
-            @RequestParam(defaultValue = "id", required = false) String sortBy,
-            @RequestParam(defaultValue = "asc", required = false) String sortDir) {
+            Pageable pageable) {
 
-        List<Dish> dishes;
+        Page<Dish> dishes;
         if (name != null) {
-            dishes = dishService.getDishesByName(name);
+            dishes = dishService.getDishesByName(name, pageable);
         } else if (price != null) {
-            dishes = dishService.getDishesByPrice(price);
+            dishes = dishService.getDishesByPrice(price, pageable);
         } else {
-            dishes = dishService.getAllDishes(sortBy, sortDir);
+            dishes = dishService.getAllDishes(pageable);
         }
 
-        List<DishDto> dishDtos = dishService.convertListToDtos(dishes);
+        Page<DishDto> dishDtos = dishes.map(dishService::convertToDto);
         return ResponseEntity.ok(new ApiRespone("Dishes retrieved successfully", dishDtos));
     }
 

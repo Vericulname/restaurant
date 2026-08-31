@@ -1,7 +1,7 @@
 package com.sangng.restaurant.controller;
 
-import java.util.List;
-
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -35,15 +35,15 @@ public class UserController {
     @GetMapping
     public ResponseEntity<ApiRespone> getUsers(
             @RequestParam(required = false) String name,
-            @RequestParam(defaultValue = "id", required = false) String sortBy,
-            @RequestParam(defaultValue = "asc", required = false) String sortDir
+            Pageable pageable
     ) {
         if (name != null && !name.isEmpty()) {
-            List<User> users = userService.getUserByName(name);
-            return ResponseEntity.ok(new ApiRespone("User retrieved successfully", userService.convertListToDtos(users)));
+            Page<User> users = userService.getUserByName(name, pageable);
+            Page<UserDto> userDtos = users.map(userService::convertToDto);
+            return ResponseEntity.ok(new ApiRespone("User retrieved successfully", userDtos));
         }
-        List<User> users = userService.getAllUsers(sortBy, sortDir);
-        List<UserDto> userDtos = userService.convertListToDtos(users);
+        Page<User> users = userService.getAllUsers(pageable);
+        Page<UserDto> userDtos = users.map(userService::convertToDto);
         return ResponseEntity.status(HttpStatus.OK).body(new ApiRespone("Users retrieved successfully", userDtos));
     }
 

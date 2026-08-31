@@ -3,8 +3,10 @@ package com.sangng.restaurant.service.Dish;
 import java.util.List;
 import java.util.Optional;
 
+
 import org.modelmapper.ModelMapper;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.sangng.restaurant.dto.DishDto;
@@ -28,10 +30,8 @@ public class DishService implements IDishService {
     private final ModelMapper modelMapper;
 
     @Override
-    public List<Dish> getAllDishes(String sortBy, String sortDir) {
-        Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name()) ?
-                Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
-        return dishRepos.findAll(sort);
+    public Page<Dish> getAllDishes(Pageable pageable) {
+        return dishRepos.findAll(pageable);
     }
 
     @Override
@@ -40,13 +40,13 @@ public class DishService implements IDishService {
     }
 
     @Override
-    public List<Dish> getDishesByName(String name) {
-        return dishRepos.findByNameContaining(name);
+    public Page<Dish> getDishesByName(String name,Pageable pageable) {
+        return dishRepos.findByNameContaining(name, pageable);
     }
 
     @Override
-    public List<Dish> getDishesByPrice(double price) {
-        return dishRepos.findByPrice(price);
+    public Page<Dish> getDishesByPrice(double price, Pageable pageable) {
+        return dishRepos.findByPrice(price, pageable);
     }
 
     @Override

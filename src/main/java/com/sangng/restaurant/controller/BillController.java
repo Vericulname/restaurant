@@ -1,7 +1,7 @@
 package com.sangng.restaurant.controller;
 
-import java.util.List;
-
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.sangng.restaurant.dto.BillDto;
@@ -39,13 +38,15 @@ public class BillController {
 
     @GetMapping("/users/bills")
     public ResponseEntity<ApiRespone> getBillByUserId(
-            @RequestParam(defaultValue = "id", required = false) String sortBy,
-            @RequestParam(defaultValue = "asc", required = false) String sortDir) {
+            Pageable pageable                
+        ) {
         Long id = userService.getAuthedUser().getId();
 
-        List<Bill> bills = billService.getBillsByUserId(id, sortBy, sortDir);
-        List<BillDto> billDtos = billService.convertListToDtos(bills);
-        return ResponseEntity.ok(new ApiRespone("Bill retrieved successfully", billDtos));
+        Page<Bill> billPage = billService.getBillsByUserId(id, pageable);
+     
+        Page<BillDto> billDtoPage = billPage.map(bill -> billService.convertToDto(bill));
+
+        return ResponseEntity.ok(new ApiRespone("Bill retrieved successfully", billDtoPage));
     }
 
     @PostMapping("/users/bills")

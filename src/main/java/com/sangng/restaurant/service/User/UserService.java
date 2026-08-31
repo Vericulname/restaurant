@@ -5,7 +5,8 @@ import java.util.List;
 import java.util.Optional;
 
 import org.modelmapper.ModelMapper;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -32,17 +33,17 @@ public class UserService implements IUserService {
     private final RoleRepos roleRepos;
 
     @Override
-    public List<User> getUserByName(String name) {
-        return Optional.ofNullable(userRepos.findByNameContaining(name))
+    public Page<User> getUserByName(String name, Pageable pageable) {
+        return Optional.ofNullable(userRepos.findByNameContaining(name, pageable))
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with name: " + name));
     }
 
     @Override
-    public List<User> getAllUsers(String sortBy, String sortDir) {
-        Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name()) ? 
-         Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
+    public Page<User> getAllUsers(Pageable pageable) {
+        // Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name()) ? 
+        //  Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
         
-        return userRepos.findAll(sort);
+        return userRepos.findAll(pageable);
     }
    
 

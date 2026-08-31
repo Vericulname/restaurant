@@ -2,17 +2,20 @@ package com.sangng.restaurant.service.Dish;
 
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
 import com.sangng.restaurant.dto.DishDto;
 import com.sangng.restaurant.model.Dish;
 import com.sangng.restaurant.request.DishCreateRequest;
 import com.sangng.restaurant.request.DishUpdateRequest;
 
 public interface IDishService {
-    List<Dish> getAllDishes(String sortBy, String sortDir);
+    Page<Dish> getAllDishes(Pageable pageable);
 
     Dish getDishById(Long id);
-    List<Dish> getDishesByName(String name);
-    List<Dish> getDishesByPrice(double price);
+    Page<Dish> getDishesByName(String name, Pageable pageable);
+    Page<Dish> getDishesByPrice(double price, Pageable pageable);
     Dish createDish(DishCreateRequest request);
     Dish updateDish(Long id, DishUpdateRequest request);
 

@@ -1,12 +1,12 @@
 package com.sangng.restaurant.service.Bill;
 
-
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.sangng.restaurant.dto.BillDto;
@@ -33,6 +33,7 @@ public class BillService implements IBillService {
     private final ModelMapper modelmapper;
 
     private final BillItemRepos billItemRepos;
+
     @Override
     public Bill createBill(User user) {
 
@@ -42,35 +43,40 @@ public class BillService implements IBillService {
     }
 
     @Override
-    public List<Bill> getAllBills(String sortBy, String sortDir) {
-        Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name()) ?
-                Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
-        return billrepos.findAll(sort);
+    public Page<Bill> getAllBills(Pageable pageable) {
+        // Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name()) ?
+        // Sort.by(sortBy).ascending()
+        // : Sort.by(sortBy).descending();
+        return billrepos.findAll(pageable);
     }
-       @Override
-       public List<Bill> getBillsByUserId(Long userId, String sortBy, String sortDir) {
-            userRepos.findById(userId)
-                   .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId ));
-            List<Bill> bills;
-            Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name()) ?
-                Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
-            bills = billrepos.findByUserId(userId, sort);
-            return bills;
-        
-    }
- 
+
     @Override
-    public List<Bill> getBillsByTotalPrice(double totalPrice) {
-        return billrepos.findBytotalprice(totalPrice);
+    public Page<Bill> getBillsByUserId(Long userId, Pageable pageable) {
+        userRepos.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
+
+        // Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name()) ?
+        // Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
+
+        // Pageable pageable = Pageable.ofSize(10).withPage(0);
+        Page<Bill> billPage = billrepos.findByUserId(userId, pageable);
+
+        return billPage;
+
     }
-    
+
+    @Override
+    public Page<Bill> getBillsByTotalPrice(double totalPrice, Pageable pageable) {
+        return billrepos.findByTotalprice(totalPrice, pageable);
+    }
+
     @Override
     public Bill getBillById(Long id) {
 
-        return billrepos.findById(id).orElseThrow(() -> new ResourceNotFoundException("Bill not found")); 
-       
+        return billrepos.findById(id).orElseThrow(() -> new ResourceNotFoundException("Bill not found"));
+
     }
-    
+
     @Override
     public void deleteBill(Long id) {
         billrepos.findById(id).ifPresentOrElse(billrepos::delete, () -> {
@@ -89,14 +95,14 @@ public class BillService implements IBillService {
     @Override
     public BillDto convertToDto(Bill bill) {
         BillDto billDto = modelmapper.map(bill, BillDto.class);
-        
+
         Set<BillItem> billItems = bill.getBillItems();
         Set<BillItemDto> billItemDtos = billItems.stream()
                 .map(billItem -> {
                     BillItemDto billItemDto = modelmapper.map(billItem, BillItemDto.class);
                     Dish dish = billItem.getDish();
                     List<Image> images = dish.getImages();
-                    
+
                     List<ImageDto> imageDtos = images.stream()
                             .map(image -> modelmapper.map(image, ImageDto.class))
                             .toList();
@@ -112,15 +118,10 @@ public class BillService implements IBillService {
         return billDto;
     }
 
- 
-
     @Override
     public List<BillDto> convertListToDtos(List<Bill> bills) {
 
         return bills.stream().map(this::convertToDto).toList();
     }
-    
-    
 
-    
 }

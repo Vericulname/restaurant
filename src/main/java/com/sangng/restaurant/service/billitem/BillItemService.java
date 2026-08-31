@@ -47,7 +47,7 @@ public class BillItemService implements IBillItemService {
             billItemRepos.save(item);
 
             bill.getBillItems().add(item);
-            bill.setTotalprice(bill.getTotalprice() + item.getTotalprice());
+            // bill.setTotalprice(bill.getTotalprice() + item.getTotalprice());
             billRepos.save(bill);
         } catch (Exception e) {
             throw new ResourceNotFoundException("Cannot create BillItem: " + e.getMessage());
